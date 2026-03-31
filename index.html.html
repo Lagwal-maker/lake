@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Keka HRMS — AI-Powered</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+<style>
+:root{
+  --bg:#0b0f1a;--surface:#111827;--surface2:#1a2235;--surface3:#222d42;
+  --border:#2a3550;--border2:#3a4a6a;
+  --accent:#4f8ef7;--accent2:#7c3aed;--accent3:#10b981;--accent4:#f59e0b;--danger:#ef4444;
+  --text:#f0f4ff;--text2:#8899bb;--text3:#4a5a7a;
+  --grad:linear-gradient(135deg,#4f8ef7,#7c3aed);
+  --font-head:'Syne',sans-serif;--font-body:'DM Sans',sans-serif;
+  --radius:12px;--radius-lg:18px;--radius-xl:24px;
+  --shadow:0 4px 24px rgba(0,0,0,0.4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--surface)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* ===== LAYOUT ===== */
+.app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:230px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:60px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;flex-shrink:0}
+.content{flex:1;overflow-y:auto;padding:24px}
+
+/* ===== SIDEBAR ===== */
+.logo{padding:20px 20px 12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);margin-bottom:8px}
+.logo-icon{width:36px;height:36px;background:var(--grad);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:16px;color:#fff;flex-shrink:0}
+.logo-text{font-family:var(--font-head);font-weight:700;font-size:18px;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-section{padding:4px 12px;font-size:10px;font-weight:600;color:var(--text3);letter-spacing:1.2px;text-transform:uppercase;margin-top:8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;margin:1px 8px;border-radius:var(--radius);cursor:pointer;transition:all .2s;font-size:14px;color:var(--text2);font-weight:500;position:relative}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:linear-gradient(135deg,rgba(79,142,247,.2),rgba(124,58,237,.2));color:var(--accent);border:1px solid rgba(79,142,247,.3)}
+.nav-item .icon{font-size:16px;width:20px;text-align:center}
+.nav-badge{margin-left:auto;background:var(--accent);color:#fff;font-size:10px;padding:2px 6px;border-radius:20px;font-weight:600}
+.sidebar-bottom{margin-top:auto;padding:12px;border-top:1px solid var(--border)}
+.user-pill{display:flex;align-items:center;gap:10px;padding:10px;border-radius:var(--radius);background:var(--surface2);cursor:pointer}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover}
+
+/* ===== TOPBAR ===== */
+.page-title{font-family:var(--font-head);font-weight:700;font-size:18px;flex:1}
+.topbar-search{flex:1;max-width:320px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:8px 14px;color:var(--text);font-family:var(--font-body);font-size:14px;outline:none;transition:border-color .2s}
+.topbar-search:focus{border-color:var(--accent)}
+.topbar-search::placeholder{color:var(--text3)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:var(--radius);font-family:var(--font-body);font-size:14px;font-weight:500;cursor:pointer;border:none;transition:all .2s}
+.btn-primary{background:var(--grad);color:#fff}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:var(--border2);color:var(--text)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-danger{background:rgba(239,68,68,.15);color:var(--danger);border:1px solid rgba(239,68,68,.3)}
+.notif-btn{width:36px;height:36px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;position:relative}
+.notif-dot{position:absolute;top:6px;right:6px;width:8px;height:8px;background:var(--danger);border-radius:50%;border:2px solid var(--surface)}
+
+/* ===== CARDS ===== */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-title{font-family:var(--font-head);font-weight:600;font-size:15px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;right:0;width:80px;height:80px;border-radius:0 0 0 80px;opacity:.1}
+.stat-card.blue::before{background:var(--accent)}
+.stat-card.purple::before{background:var(--accent2)}
+.stat-card.green::before{background:var(--accent3)}
+.stat-card.amber::before{background:var(--accent4)}
+.stat-value{font-family:var(--font-head);font-size:32px;font-weight:800;margin:8px 0 4px}
+.stat-label{font-size:13px;color:var(--text2)}
+.stat-change{font-size:12px;display:flex;align-items:center;gap:4px;margin-top:4px}
+.stat-change.up{color:var(--accent3)}.stat-change.down{color:var(--danger)}
+
+/* ===== GRID ===== */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.grid-auto{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+
+/* ===== TABLE ===== */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:10px 14px;color:var(--text3);font-weight:600;letter-spacing:.5px;text-transform:uppercase;font-size:11px;border-bottom:1px solid var(--border);background:var(--surface2)}
+td{padding:12px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:hover td{background:var(--surface2)}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-green{background:rgba(16,185,129,.15);color:var(--accent3)}
+.badge-red{background:rgba(239,68,68,.15);color:var(--danger)}
+.badge-blue{background:rgba(79,142,247,.15);color:var(--accent)}
+.badge-amber{background:rgba(245,158,11,.15);color:var(--accent4)}
+.badge-gray{background:rgba(255,255,255,.08);color:var(--text2)}
+.badge-purple{background:rgba(124,58,237,.15);color:#a78bfa}
+
+/* ===== FORMS ===== */
+.form-group{margin-bottom:16px}
+label{display:block;font-size:13px;font-weight:500;color:var(--text2);margin-bottom:6px}
+input,select,textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;color:var(--text);font-family:var(--font-body);font-size:14px;outline:none;transition:border-color .2s}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+input::placeholder,textarea::placeholder{color:var(--text3)}
+select option{background:var(--surface2);color:var(--text)}
+textarea{resize:vertical;min-height:80px}
+
+/* ===== MODAL ===== */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-xl);padding:28px;width:90%;max-width:560px;max-height:85vh;overflow-y:auto;animation:slideUp .25s ease}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.modal-title{font-family:var(--font-head);font-weight:700;font-size:18px}
+.close-btn{background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px}
+.close-btn:hover{background:var(--surface2);color:var(--text)}
+
+/* ===== AI CHAT ===== */
+.ai-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);display:flex;flex-direction:column;height:100%}
+.ai-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.msg{display:flex;gap:10px;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.msg-ai{align-self:flex-start}
+.msg-user{align-self:flex-end;flex-direction:row-reverse}
+.msg-bubble{padding:10px 14px;border-radius:var(--radius);font-size:13px;line-height:1.5;max-width:75%}
+.msg-ai .msg-bubble{background:var(--surface2);color:var(--text);border-bottom-left-radius:4px}
+.msg-user .msg-bubble{background:var(--grad);color:#fff;border-bottom-right-radius:4px}
+.msg-avatar{width:28px;height:28px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.ai-input-row{padding:12px;border-top:1px solid var(--border);display:flex;gap:8px}
+.ai-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:8px 14px;color:var(--text);font-family:var(--font-body);font-size:13px;outline:none}
+.ai-input:focus{border-color:var(--accent)}
+.quick-queries{display:flex;flex-wrap:wrap;gap:6px;padding:8px 12px}
+.qchip{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:11px;color:var(--text2);cursor:pointer;transition:all .2s}
+.qchip:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ===== FACE DETECTION ===== */
+.face-container{position:relative;border-radius:var(--radius-lg);overflow:hidden;background:#000}
+#faceVideo,#faceCanvas{position:absolute;top:0;left:0;width:100%;height:100%}
+#faceVideo{position:relative}
+.face-status{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:var(--radius);font-size:13px;margin-top:10px}
+.face-status.detected{background:rgba(16,185,129,.15);color:var(--accent3);border:1px solid rgba(16,185,129,.3)}
+.face-status.no-face{background:rgba(245,158,11,.15);color:var(--accent4);border:1px solid rgba(245,158,11,.3)}
+.face-status.error{background:rgba(239,68,68,.15);color:var(--danger);border:1px solid rgba(239,68,68,.3)}
+
+/* ===== ORG CHART ===== */
+.org-node{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;text-align:center;cursor:pointer;transition:all .2s;min-width:130px}
+.org-node:hover{border-color:var(--accent);transform:translateY(-2px)}
+.org-node.root{background:linear-gradient(135deg,rgba(79,142,247,.2),rgba(124,58,237,.2));border-color:rgba(79,142,247,.4)}
+.org-tier{display:flex;justify-content:center;gap:24px;margin-bottom:0}
+.org-line{border-left:2px solid var(--border2);height:24px;margin:0 auto;width:0}
+.org-hline{border-top:2px solid var(--border2);flex:1}
+
+/* ===== CALENDAR ===== */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cal-day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:8px;font-size:13px;cursor:pointer;position:relative;transition:background .2s;padding:4px}
+.cal-day:hover{background:var(--surface2)}
+.cal-day.today{background:var(--accent);color:#fff;font-weight:700}
+.cal-day.has-leave::after{content:'';position:absolute;bottom:3px;width:5px;height:5px;border-radius:50%;background:var(--accent4)}
+.cal-day.holiday{color:var(--danger)}
+.cal-day.other-month{color:var(--text3)}
+.cal-header-day{text-align:center;font-size:11px;font-weight:600;color:var(--text3);padding:4px;letter-spacing:.5px;text-transform:uppercase}
+
+/* ===== PROGRESS ===== */
+.progress{background:var(--surface2);border-radius:20px;height:8px;overflow:hidden}
+.progress-bar{height:100%;border-radius:20px;background:var(--grad);transition:width .6s ease}
+
+/* ===== PAGES ===== */
+.page{display:none}.page.active{display:block}
+
+/* ===== ANIMATIONS ===== */
+.pulse{animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.chip{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:12px;display:inline-flex;align-items:center;gap:4px}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.dot-green{background:var(--accent3)}.dot-red{background:var(--danger)}.dot-amber{background:var(--accent4)}.dot-blue{background:var(--accent)}
+
+/* ===== TABS ===== */
+.tabs{display:flex;gap:4px;background:var(--surface2);border-radius:var(--radius);padding:4px;margin-bottom:20px}
+.tab{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;color:var(--text2);transition:all .2s}
+.tab.active{background:var(--surface);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.tab-content{display:none}.tab-content.active{display:block}
+
+/* ===== TIMELINE ===== */
+.timeline{position:relative;padding-left:24px}
+.timeline::before{content:'';position:absolute;left:7px;top:0;bottom:0;width:2px;background:var(--border)}
+.tl-item{position:relative;margin-bottom:16px}
+.tl-dot{position:absolute;left:-20px;top:4px;width:12px;height:12px;border-radius:50%;border:2px solid var(--accent);background:var(--surface)}
+.tl-content{background:var(--surface2);border-radius:var(--radius);padding:10px 14px}
+
+/* ===== ANOMALY CARD ===== */
+.anomaly-card{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:var(--radius);padding:14px;display:flex;gap:12px;align-items:flex-start}
+.anomaly-icon{font-size:20px;flex-shrink:0}
+.attrition-card{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:var(--radius);padding:14px;display:flex;gap:12px;align-items:flex-start}
+
+/* LOADING DOTS */
+.loading-dots span{animation:blink 1.4s infinite both}
+.loading-dots span:nth-child(2){animation-delay:.2s}
+.loading-dots span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:0}40%{opacity:1}}
+
+/* FACE PAGE LAYOUT */
+.face-page-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+.checkin-log{max-height:400px;overflow-y:auto}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .sidebar{width:60px}.logo-text{display:none}.nav-item span{display:none}
+  .grid-4{grid-template-columns:1fr 1fr}.grid-3{grid-template-columns:1fr}
+  .face-page-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ===== SIDEBAR ===== -->
+<aside class="sidebar" id="sidebar">
+  <div class="logo">
+    <div class="logo-icon">K</div>
+    <span class="logo-text">Keka HRMS</span>
+  </div>
+
+  <div class="nav-section">Core</div>
+  <div class="nav-item active" onclick="navigate('dashboard')"><span class="icon">⊞</span><span>Dashboard</span></div>
+  <div class="nav-item" onclick="navigate('employees')"><span class="icon">👥</span><span>Employees</span></div>
+  <div class="nav-item" onclick="navigate('orgchart')"><span class="icon">🏢</span><span>Org Chart</span></div>
+
+  <div class="nav-section">Workforce</div>
+  <div class="nav-item" onclick="navigate('attendance')"><span class="icon">📍</span><span>Attendance</span></div>
+  <div class="nav-item" onclick="navigate('facecheckin')"><span class="icon">📷</span><span>Face Check-In</span><span class="nav-badge">AI</span></div>
+  <div class="nav-item" onclick="navigate('leave')"><span class="icon">🌴</span><span>Leave</span></div>
+
+  <div class="nav-section">Operations</div>
+  <div class="nav-item" onclick="navigate('payroll')"><span class="icon">💰</span><span>Payroll</span></div>
+  <div class="nav-item" onclick="navigate('performance')"><span class="icon">🎯</span><span>Performance</span></div>
+  <div class="nav-item" onclick="navigate('onboarding')"><span class="icon">🚀</span><span>Onboarding</span></div>
+
+  <div class="nav-section">Intelligence</div>
+  <div class="nav-item" onclick="navigate('aiassistant')"><span class="icon">🤖</span><span>AI Assistant</span><span class="nav-badge">New</span></div>
+  <div class="nav-item" onclick="navigate('analytics')"><span class="icon">📊</span><span>Analytics</span></div>
+
+  <div class="nav-section">Self Service</div>
+  <div class="nav-item" onclick="navigate('selfservice')"><span class="icon">👤</span><span>My Profile</span></div>
+
+  <div class="sidebar-bottom">
+    <div class="user-pill">
+      <div class="avatar">AD</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Admin User</div>
+        <div style="font-size:11px;color:var(--text3)">HR Admin</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ===== MAIN ===== -->
+<div class="main">
+  <div class="topbar">
+    <span class="page-title" id="pageTitle">Dashboard</span>
+    <input class="topbar-search" type="search" placeholder="🔍  Search employees, leaves, reports..." id="globalSearch" oninput="globalSearchFn(this.value)"/>
+    <div class="notif-btn" onclick="showNotifications()">🔔<div class="notif-dot"></div></div>
+    <button class="btn btn-primary btn-sm" onclick="openAddEmployee()">+ Add Employee</button>
+  </div>
+
+  <div class="content">
+
+    <!-- ========== DASHBOARD ========== -->
+    <div class="page active" id="page-dashboard">
+      <div class="grid-4" style="margin-bottom:20px">
+        <div class="stat-card blue"><div class="stat-label">Total Employees</div><div class="stat-value" id="totalEmpStat">24</div><div class="stat-change up">↑ 3 this month</div></div>
+        <div class="stat-card green"><div class="stat-label">Present Today</div><div class="stat-value" id="presentStat">19</div><div class="stat-change up">↑ 79% attendance</div></div>
+        <div class="stat-card amber"><div class="stat-label">On Leave</div><div class="stat-value" id="onLeaveStat">3</div><div class="stat-change down">↓ 2 pending approvals</div></div>
+        <div class="stat-card purple"><div class="stat-label">Open Positions</div><div class="stat-value">5</div><div class="stat-change up">↑ 2 offers sent</div></div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:20px">
+        <!-- Attendance Chart -->
+        <div class="card">
+          <div class="card-header"><span class="card-title">Weekly Attendance</span><span class="badge badge-blue">This Week</span></div>
+          <canvas id="attendanceChart" height="180"></canvas>
+        </div>
+        <!-- AI Anomalies -->
+        <div class="card">
+          <div class="card-header"><span class="card-title">🤖 AI Anomaly Alerts</span><span class="badge badge-red">3 issues</span></div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div class="anomaly-card"><span class="anomaly-icon">⚠️</span><div><div style="font-weight:600;font-size:13px;margin-bottom:3px">Late arrival pattern detected</div><div style="font-size:12px;color:var(--text2)">Rohan Mehta has been late 4 times this week — 35 min avg delay. Consider a check-in.</div></div></div>
+            <div class="anomaly-card"><span class="anomaly-icon">📉</span><div><div style="font-weight:600;font-size:13px;margin-bottom:3px">Absence spike — Engineering</div><div style="font-size:12px;color:var(--text2)">Engineering dept absences up 60% vs last month. Possible burnout or morale issue.</div></div></div>
+            <div class="attrition-card"><span class="anomaly-icon">🚨</span><div><div style="font-weight:600;font-size:13px;margin-bottom:3px">Attrition risk: Priya Sharma</div><div style="font-size:12px;color:var(--text2)">Low review score + 3 leave applications in Oct + no performance goals set. High risk.</div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Dept Breakdown -->
+        <div class="card">
+          <div class="card-header"><span class="card-title">Department Headcount</span></div>
+          <canvas id="deptChart" height="200"></canvas>
+        </div>
+        <!-- Recent Activity -->
+        <div class="card">
+          <div class="card-header"><span class="card-title">Recent Activity</span></div>
+          <div class="timeline">
+            <div class="tl-item"><div class="tl-dot"></div><div class="tl-content"><strong>Arjun Kapoor</strong> applied for 3 days Earned Leave<br><span style="font-size:12px;color:var(--text3)">2 hours ago</span></div></div>
+            <div class="tl-item"><div class="tl-dot"></div><div class="tl-content"><strong>Sneha Iyer</strong> completed Performance Self-Assessment<br><span style="font-size:12px;color:var(--text3)">5 hours ago</span></div></div>
+            <div class="tl-item"><div class="tl-dot"></div><div class="tl-content"><strong>New employee</strong> Kavya Reddy onboarded — Engineering<br><span style="font-size:12px;color:var(--text3)">Yesterday</span></div></div>
+            <div class="tl-item"><div class="tl-dot"></div><div class="tl-content"><strong>Payroll</strong> October inputs locked by Finance<br><span style="font-size:12px;color:var(--text3)">2 days ago</span></div></div>
+            <div class="tl-item"><div class="tl-dot"></div><div class="tl-content"><strong>Vikram Singh</strong> check-in anomaly flagged by AI<br><span style="font-size:12px;color:var(--text3)">3 days ago</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /dashboard -->
+
+    <!-- ========== EMPLOYEES ========== -->
+    <div class="page" id="page-employees">
+      <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap">
+        <input type="text" placeholder="🔍 Search by name, dept, role..." style="max-width:280px" oninput="filterEmployees(this.value)" id="empSearch"/>
+        <select onchange="filterByDept(this.value)" style="max-width:180px">
+          <option value="">All Departments</option>
+          <option>Engineering</option><option>HR</option><option>Finance</option><option>Marketing</option><option>Operations</option><option>Sales</option>
+        </select>
+        <select onchange="filterByStatus(this.value)" style="max-width:160px">
+          <option value="">All Status</option><option>Active</option><option>On Leave</option><option>Inactive</option>
+        </select>
+        <button class="btn btn-primary btn-sm" onclick="openAddEmployee()">+ Add Employee</button>
+        <button class="btn btn-ghost btn-sm" onclick="exportEmployees()">↓ Export</button>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table id="empTable">
+            <thead><tr>
+              <th>Employee</th><th>ID</th><th>Department</th><th>Role</th><th>Manager</th><th>Joined</th><th>Status</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="empTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== ORG CHART ========== -->
+    <div class="page" id="page-orgchart">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Organisation Structure</span><button class="btn btn-ghost btn-sm">↓ Export PNG</button></div>
+        <div id="orgChartContainer" style="overflow-x:auto;padding:20px"></div>
+      </div>
+    </div>
+
+    <!-- ========== ATTENDANCE ========== -->
+    <div class="page" id="page-attendance">
+      <div class="tabs" id="attendanceTabs">
+        <div class="tab active" onclick="switchTab('attendance','daily')">Daily View</div>
+        <div class="tab" onclick="switchTab('attendance','monthly')">Monthly Report</div>
+        <div class="tab" onclick="switchTab('attendance','anomalies')">Anomalies</div>
+      </div>
+
+      <div class="tab-content active" id="attendance-daily">
+        <div class="grid-3" style="margin-bottom:20px">
+          <div class="stat-card green"><div class="stat-label">Present</div><div class="stat-value">19</div></div>
+          <div class="stat-card amber"><div class="stat-label">Late Arrivals</div><div class="stat-value">3</div></div>
+          <div class="stat-card blue"><div class="stat-label">WFH</div><div class="stat-value">4</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Today's Attendance — <span id="todayDate"></span></span><button class="btn btn-ghost btn-sm" onclick="exportAttendance()">↓ Export CSV</button></div>
+          <div class="table-wrap"><table><thead><tr><th>Employee</th><th>Check-In</th><th>Check-Out</th><th>Hours</th><th>Status</th><th>Note</th></tr></thead>
+          <tbody id="attendanceDailyBody"></tbody></table></div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="attendance-monthly">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Monthly Report — October 2025</span><button class="btn btn-ghost btn-sm" onclick="exportAttendance()">↓ Export</button></div>
+          <div style="margin-bottom:16px"><canvas id="monthlyAttChart" height="120"></canvas></div>
+          <div class="table-wrap"><table><thead><tr><th>Employee</th><th>Present</th><th>Absent</th><th>Late</th><th>WFH</th><th>Avg Hours</th><th>Attendance%</th></tr></thead>
+          <tbody id="monthlyAttBody"></tbody></table></div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="attendance-anomalies">
+        <div class="card">
+          <div class="card-header"><span class="card-title">🤖 AI-Detected Anomalies</span></div>
+          <div style="display:flex;flex-direction:column;gap:12px" id="anomalyList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== FACE CHECK-IN ========== -->
+    <div class="page" id="page-facecheckin">
+      <div class="face-page-grid">
+        <div>
+          <div class="card" style="margin-bottom:16px">
+            <div class="card-header"><span class="card-title">📷 Face Detection Check-In</span><span class="badge badge-blue">AI-Powered</span></div>
+            <div class="face-container" style="height:300px;background:#111;border-radius:var(--radius);overflow:hidden;position:relative">
+              <video id="faceVideo" autoplay muted playsinline style="width:100%;height:100%;object-fit:cover;display:block"></video>
+              <canvas id="faceCanvas" style="position:absolute;top:0;left:0;width:100%;height:100%"></canvas>
+              <div style="position:absolute;top:10px;right:10px" id="faceIndicator"><span class="badge badge-gray pulse">⏳ Loading models...</span></div>
+            </div>
+            <div class="face-status no-face" id="faceStatus">📷 No face detected — please look at the camera</div>
+            <div style="display:flex;gap:8px;margin-top:12px">
+              <button class="btn btn-primary" onclick="startCamera()" id="startCamBtn">Start Camera</button>
+              <button class="btn btn-ghost" onclick="stopCamera()" id="stopCamBtn" style="display:none">Stop</button>
+              <button class="btn btn-ghost" onclick="manualCheckin()" id="manualBtn">Manual Check-In</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><span class="card-title">Select Employee</span></div>
+            <select id="faceEmpSelect" style="margin-bottom:12px">
+              <option value="">— Select employee for check-in —</option>
+            </select>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-primary" style="flex:1" onclick="performCheckin('in')">✓ Check In</button>
+              <button class="btn btn-ghost" style="flex:1" onclick="performCheckin('out')">← Check Out</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span class="card-title">Today's Check-In Log</span><span class="badge badge-green" id="todayCheckinCount">0 checked in</span></div>
+          <div class="checkin-log" id="checkinLog">
+            <div style="text-align:center;color:var(--text3);padding:40px">No check-ins yet today</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== LEAVE ========== -->
+    <div class="page" id="page-leave">
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('leave','applications')">Applications</div>
+        <div class="tab" onclick="switchTab('leave','calendar')">Calendar</div>
+        <div class="tab" onclick="switchTab('leave','balances')">Balances</div>
+      </div>
+
+      <div class="tab-content active" id="leave-applications">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost btn-sm active" onclick="filterLeave('all',this)">All</button>
+            <button class="btn btn-ghost btn-sm" onclick="filterLeave('Pending',this)">Pending</button>
+            <button class="btn btn-ghost btn-sm" onclick="filterLeave('Approved',this)">Approved</button>
+            <button class="btn btn-ghost btn-sm" onclick="filterLeave('Rejected',this)">Rejected</button>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="openLeaveModal()">+ Apply Leave</button>
+        </div>
+        <div class="card">
+          <div class="table-wrap"><table><thead><tr><th>Employee</th><th>Type</th><th>From</th><th>To</th><th>Days</th><th>Reason</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="leaveTableBody"></tbody></table></div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="leave-calendar">
+        <div class="card">
+          <div class="card-header">
+            <button class="btn btn-ghost btn-sm" onclick="changeMonth(-1)">← Prev</button>
+            <span class="card-title" id="calMonthTitle">October 2025</span>
+            <button class="btn btn-ghost btn-sm" onclick="changeMonth(1)">Next →</button>
+          </div>
+          <div class="cal-grid" style="margin-bottom:8px">
+            <div class="cal-header-day">Sun</div><div class="cal-header-day">Mon</div><div class="cal-header-day">Tue</div><div class="cal-header-day">Wed</div><div class="cal-header-day">Thu</div><div class="cal-header-day">Fri</div><div class="cal-header-day">Sat</div>
+          </div>
+          <div class="cal-grid" id="calGrid"></div>
+          <div style="display:flex;gap:16px;margin-top:12px;font-size:12px;color:var(--text2)">
+            <span><span class="dot dot-blue" style="display:inline-block"></span> Today</span>
+            <span><span class="dot dot-amber" style="display:inline-block"></span> Leave</span>
+            <span><span class="dot dot-red" style="display:inline-block"></span> Holiday</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="leave-balances">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Leave Balances</span><select style="max-width:200px" id="balanceEmpSelect" onchange="renderLeaveBalances()"><option value="">All Employees</option></select></div>
+          <div class="table-wrap"><table><thead><tr><th>Employee</th><th>Casual</th><th>Sick</th><th>Earned</th><th>Comp-Off</th><th>WFH</th><th>Total Used</th></tr></thead>
+          <tbody id="leaveBalanceBody"></tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== PAYROLL ========== -->
+    <div class="page" id="page-payroll">
+      <div class="grid-3" style="margin-bottom:20px">
+        <div class="stat-card green"><div class="stat-label">Monthly Gross</div><div class="stat-value">₹42.3L</div><div class="stat-change up">Oct 2025</div></div>
+        <div class="stat-card blue"><div class="stat-label">Net Payable</div><div class="stat-value">₹36.8L</div><div class="stat-change up">After deductions</div></div>
+        <div class="stat-card amber"><div class="stat-label">Pending Reimb.</div><div class="stat-value">₹1.2L</div><div class="stat-change down">5 claims pending</div></div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('payroll','summary')">Monthly Summary</div>
+        <div class="tab" onclick="switchTab('payroll','structure')">Salary Structure</div>
+        <div class="tab" onclick="switchTab('payroll','tax')">Tax Declarations</div>
+      </div>
+
+      <div class="tab-content active" id="payroll-summary">
+        <div class="card">
+          <div class="card-header"><span class="card-title">October 2025 Payroll</span><button class="btn btn-ghost btn-sm" onclick="exportPayroll()">↓ Export Excel</button></div>
+          <div class="table-wrap"><table><thead><tr><th>Employee</th><th>Dept</th><th>Basic</th><th>HRA</th><th>Allowances</th><th>Gross</th><th>PF</th><th>Tax (TDS)</th><th>Net Pay</th></tr></thead>
+          <tbody id="payrollBody"></tbody></table></div>
+        </div>
+      </div>
+      <div class="tab-content" id="payroll-structure">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Salary Structure Bands</span></div>
+          <div class="table-wrap"><table><thead><tr><th>Grade</th><th>Basic</th><th>HRA (40%)</th><th>Special Allow.</th><th>Gross CTC</th><th>Employees</th></tr></thead>
+          <tbody>
+            <tr><td><span class="badge badge-purple">L1 Junior</span></td><td>₹25,000</td><td>₹10,000</td><td>₹8,000</td><td>₹43,000</td><td>6</td></tr>
+            <tr><td><span class="badge badge-blue">L2 Mid</span></td><td>₹45,000</td><td>₹18,000</td><td>₹15,000</td><td>₹78,000</td><td>10</td></tr>
+            <tr><td><span class="badge badge-green">L3 Senior</span></td><td>₹75,000</td><td>₹30,000</td><td>₹25,000</td><td>₹1,30,000</td><td>6</td></tr>
+            <tr><td><span class="badge badge-amber">L4 Lead</span></td><td>₹1,20,000</td><td>₹48,000</td><td>₹40,000</td><td>₹2,08,000</td><td>2</td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+      <div class="tab-content" id="payroll-tax">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Tax Declaration Forms — FY 2025-26</span><button class="btn btn-primary btn-sm" onclick="alert('Tax declaration form opened!')">Submit Declaration</button></div>
+          <div class="table-wrap"><table><thead><tr><th>Employee</th><th>Regime</th><th>HRA Exemption</th><th>80C</th><th>80D</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Arjun Kapoor</td><td>New Regime</td><td>—</td><td>₹1,50,000</td><td>₹25,000</td><td><span class="badge badge-green">Submitted</span></td></tr>
+            <tr><td>Priya Sharma</td><td>Old Regime</td><td>₹1,80,000</td><td>₹1,50,000</td><td>₹25,000</td><td><span class="badge badge-amber">Pending</span></td></tr>
+            <tr><td>Rohan Mehta</td><td>New Regime</td><td>—</td><td>₹1,50,000</td><td>₹0</td><td><span class="badge badge-green">Submitted</span></td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== PERFORMANCE ========== -->
+    <div class="page" id="page-performance">
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('performance','goals')">Goals (OKR)</div>
+        <div class="tab" onclick="switchTab('performance','reviews')">Reviews</div>
+        <div class="tab" onclick="switchTab('performance','aiinsights')">🤖 AI Insights</div>
+      </div>
+
+      <div class="tab-content active" id="performance-goals">
+        <div style="display:flex;justify-content:space-between;margin-bottom:16px">
+          <span style="color:var(--text2);font-size:13px">Q4 2025 — Oct to Dec</span>
+          <button class="btn btn-primary btn-sm" onclick="openGoalModal()">+ Add Goal</button>
+        </div>
+        <div id="goalsGrid" class="grid-auto"></div>
+      </div>
+
+      <div class="tab-content" id="performance-reviews">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Review Cycles</span></div>
+          <div class="table-wrap"><table><thead><tr><th>Employee</th><th>Review Period</th><th>Self Rating</th><th>Manager Rating</th><th>Status</th><th>AI Summary</th></tr></thead>
+          <tbody id="reviewBody"></tbody></table></div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="performance-aiinsights">
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><span class="card-title">🤖 Performance Patterns</span></div>
+            <div style="display:flex;flex-direction:column;gap:12px" id="perfInsightsList"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">Rating Distribution</span></div>
+            <canvas id="ratingChart" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== AI ASSISTANT ========== -->
+    <div class="page" id="page-aiassistant" style="height:calc(100vh - 60px - 48px);display:none">
+      <div class="grid-2" style="height:100%;gap:16px">
+        <div class="ai-panel">
+          <div style="padding:16px;border-bottom:1px solid var(--border)">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:36px;height:36px;background:var(--grad);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px">🤖</div>
+              <div>
+                <div style="font-family:var(--font-head);font-weight:700">Keka AI</div>
+                <div style="font-size:12px;color:var(--accent3)"><span class="dot dot-green"></span> Online — powered by Claude</div>
+              </div>
+            </div>
+          </div>
+          <div class="quick-queries">
+            <div class="qchip" onclick="askAI('Who is on leave next week?')">Who's on leave next week?</div>
+            <div class="qchip" onclick="askAI('Show me attendance anomalies')">Attendance anomalies</div>
+            <div class="qchip" onclick="askAI('Which employees are at attrition risk?')">Attrition risk</div>
+            <div class="qchip" onclick="askAI('Summarize October payroll')">October payroll summary</div>
+            <div class="qchip" onclick="askAI('Who has the highest performance rating?')">Top performers</div>
+            <div class="qchip" onclick="askAI('How many employees are in Engineering?')">Engineering headcount</div>
+          </div>
+          <div class="ai-messages" id="aiMessages">
+            <div class="msg msg-ai">
+              <div class="msg-avatar">🤖</div>
+              <div class="msg-bubble">Hi! I'm Keka AI, your intelligent HR assistant. Ask me anything about your workforce — leaves, attendance, payroll, performance, or any HR query in natural language.</div>
+            </div>
+          </div>
+          <div class="ai-input-row">
+            <input class="ai-input" id="aiInput" placeholder="Ask anything... e.g. Who's on leave next week?" onkeydown="if(event.key==='Enter')sendAIMessage()"/>
+            <button class="btn btn-primary btn-sm" onclick="sendAIMessage()">Send ↗</button>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:16px;overflow-y:auto">
+          <div class="card">
+            <div class="card-header"><span class="card-title">💡 Proactive Insights</span></div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="background:var(--surface2);border-radius:var(--radius);padding:12px;border-left:3px solid var(--accent)"><div style="font-size:13px;font-weight:600;margin-bottom:4px">Leave conflict detected</div><div style="font-size:12px;color:var(--text2)">3 employees in Sales have overlapping leaves Nov 15–18. Only 2 team members will be available during quarter-close.</div></div>
+              <div style="background:var(--surface2);border-radius:var(--radius);padding:12px;border-left:3px solid var(--accent3)"><div style="font-size:13px;font-weight:600;margin-bottom:4px">Performance cycle due</div><div style="font-size:12px;color:var(--text2)">Q3 manager reviews are due in 5 days. 8 managers haven't submitted ratings yet.</div></div>
+              <div style="background:var(--surface2);border-radius:var(--radius);padding:12px;border-left:3px solid var(--accent4)"><div style="font-size:13px;font-weight:600;margin-bottom:4px">Payroll deadline</div><div style="font-size:12px;color:var(--text2)">October payroll inputs must be locked by Oct 25th. 3 reimbursements are still pending approval.</div></div>
+              <div style="background:var(--surface2);border-radius:var(--radius);padding:12px;border-left:3px solid var(--danger)"><div style="font-size:13px;font-weight:600;margin-bottom:4px">Birthday &amp; anniversary reminders</div><div style="font-size:12px;color:var(--text2)">Rohan Mehta's work anniversary is tomorrow (3 years). Sneha Iyer's birthday is on Nov 2nd.</div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">📊 Quick Stats</span></div>
+            <div class="grid-2" style="gap:10px">
+              <div style="background:var(--surface2);border-radius:var(--radius);padding:12px;text-align:center"><div style="font-size:24px;font-weight:700;font-family:var(--font-head);color:var(--accent)">87%</div><div style="font-size:12px;color:var(--text2)">Avg Attendance</div></div>
+              <div style="background:var(--surface2);border-radius:var(--radius);padding:12px;text-align:center"><div style="font-size:24px;font-weight:700;font-family:var(--font-head);color:var(--accent3)">4.1</div><div style="font-size:12px;color:var(--text2)">Avg Perf Rating</div></div>
+              <div style="background:var(--surface2);border-radius:var(--radius);padding:12px;text-align:center"><div style="font-size:24px;font-weight:700;font-family:var(--font-head);color:var(--accent4)">12%</div><div style="font-size:12px;color:var(--text2)">Attrition Risk</div></div>
+              <div style="background:var(--surface2);border-radius:var(--radius);padding:12px;text-align:center"><div style="font-size:24px;font-weight:700;font-family:var(--font-head);color:var(--accent2)">6</div><div style="font-size:12px;color:var(--text2)">Pending Leaves</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== ANALYTICS ========== -->
+    <div class="page" id="page-analytics">
+      <div class="grid-2" style="margin-bottom:20px">
+        <div class="card"><div class="card-header"><span class="card-title">Headcount Trend</span></div><canvas id="headcountChart" height="180"></canvas></div>
+        <div class="card"><div class="card-header"><span class="card-title">Leave Utilisation by Type</span></div><canvas id="leaveTypeChart" height="180"></canvas></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><span class="card-title">🤖 Attrition Risk Indicators</span></div>
+          <div id="attritionList" style="display:flex;flex-direction:column;gap:10px"></div>
+        </div>
+        <div class="card"><div class="card-header"><span class="card-title">Dept-wise Attendance</span></div><canvas id="deptAttChart" height="180"></canvas></div>
+      </div>
+    </div>
+
+    <!-- ========== SELF SERVICE ========== -->
+    <div class="page" id="page-selfservice">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><span class="card-title">My Profile</span><button class="btn btn-ghost btn-sm">✏️ Edit</button></div>
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+            <div class="avatar" style="width:64px;height:64px;font-size:22px">AD</div>
+            <div>
+              <div style="font-family:var(--font-head);font-size:20px;font-weight:700">Admin User</div>
+              <div style="color:var(--text2);font-size:14px">HR Administrator</div>
+              <div style="margin-top:6px"><span class="badge badge-green">Active</span></div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:13px">
+            <div><div style="color:var(--text3)">Employee ID</div><div style="font-weight:500">EMP-001</div></div>
+            <div><div style="color:var(--text3)">Department</div><div style="font-weight:500">Human Resources</div></div>
+            <div><div style="color:var(--text3)">Joining Date</div><div style="font-weight:500">Jan 15, 2022</div></div>
+            <div><div style="color:var(--text3)">Manager</div><div style="font-weight:500">CEO</div></div>
+            <div><div style="color:var(--text3)">Email</div><div style="font-weight:500">admin@company.com</div></div>
+            <div><div style="color:var(--text3)">Phone</div><div style="font-weight:500">+91 98765 43210</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Leave Balance</span></div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px">Casual Leave</span><span style="font-size:13px;font-weight:600">8/12</span></div><div class="progress"><div class="progress-bar" style="width:66%"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px">Sick Leave</span><span style="font-size:13px;font-weight:600">5/10</span></div><div class="progress"><div class="progress-bar" style="width:50%"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px">Earned Leave</span><span style="font-size:13px;font-weight:600">15/21</span></div><div class="progress"><div class="progress-bar" style="width:71%"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px">WFH</span><span style="font-size:13px;font-weight:600">6/10</span></div><div class="progress"><div class="progress-bar" style="width:60%"></div></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">My Pay Slips</span></div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--surface2);border-radius:var(--radius)"><span style="font-size:13px">October 2025</span><button class="btn btn-ghost btn-sm">↓ Download</button></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--surface2);border-radius:var(--radius)"><span style="font-size:13px">September 2025</span><button class="btn btn-ghost btn-sm">↓ Download</button></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--surface2);border-radius:var(--radius)"><span style="font-size:13px">August 2025</span><button class="btn btn-ghost btn-sm">↓ Download</button></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Company Policies</span></div>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:13px">
+            <div style="padding:10px;background:var(--surface2);border-radius:var(--radius);cursor:pointer;display:flex;justify-content:space-between">Leave Policy 2025 <span style="color:var(--accent)">View →</span></div>
+            <div style="padding:10px;background:var(--surface2);border-radius:var(--radius);cursor:pointer;display:flex;justify-content:space-between">Work From Home Guidelines <span style="color:var(--accent)">View →</span></div>
+            <div style="padding:10px;background:var(--surface2);border-radius:var(--radius);cursor:pointer;display:flex;justify-content:space-between">Code of Conduct <span style="color:var(--accent)">View →</span></div>
+            <div style="padding:10px;background:var(--surface2);border-radius:var(--radius);cursor:pointer;display:flex;justify-content:space-between">IT & Security Policy <span style="color:var(--accent)">View →</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== ONBOARDING ========== -->
+    <div class="page" id="page-onboarding">
+      <div style="display:flex;justify-content:space-between;margin-bottom:20px">
+        <span style="color:var(--text2);font-size:14px">3 employees currently onboarding</span>
+        <button class="btn btn-primary btn-sm" onclick="openAddEmployee()">+ Start Onboarding</button>
+      </div>
+      <div class="grid-auto" id="onboardingCards"></div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ===== MODALS ===== -->
+<!-- Add Employee -->
+<div class="modal-overlay" id="addEmpModal">
+  <div class="modal">
+    <div class="modal-header"><span class="modal-title">Add New Employee</span><button class="close-btn" onclick="closeModal('addEmpModal')">✕</button></div>
+    <div class="grid-2" style="gap:12px">
+      <div class="form-group"><label>First Name *</label><input id="empFirstName" placeholder="Arjun"/></div>
+      <div class="form-group"><label>Last Name *</label><input id="empLastName" placeholder="Kapoor"/></div>
+      <div class="form-group"><label>Email *</label><input id="empEmail" placeholder="arjun@company.com" type="email"/></div>
+      <div class="form-group"><label>Phone</label><input id="empPhone" placeholder="+91 9876543210"/></div>
+      <div class="form-group"><label>Department *</label><select id="empDept"><option>Engineering</option><option>HR</option><option>Finance</option><option>Marketing</option><option>Operations</option><option>Sales</option></select></div>
+      <div class="form-group"><label>Role *</label><input id="empRole" placeholder="Senior Engineer"/></div>
+      <div class="form-group"><label>Manager</label><select id="empManager"><option value="">None (Top-level)</option></select></div>
+      <div class="form-group"><label>Joining Date *</label><input id="empJoining" type="date"/></div>
+      <div class="form-group"><label>Salary Grade</label><select id="empGrade"><option>L1 Junior</option><option>L2 Mid</option><option>L3 Senior</option><option>L4 Lead</option></select></div>
+      <div class="form-group"><label>Work Location</label><select id="empLocation"><option>Gurugram HQ</option><option>Remote</option><option>Mumbai</option><option>Bangalore</option></select></div>
+    </div>
+    <div class="form-group"><label>About / Notes</label><textarea id="empNotes" placeholder="Brief intro or notes..."></textarea></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+      <button class="btn btn-ghost" onclick="closeModal('addEmpModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEmployee()">Save Employee</button>
+    </div>
+  </div>
+</div>
+
+<!-- Leave Apply Modal -->
+<div class="modal-overlay" id="leaveModal">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-header"><span class="modal-title">Apply Leave</span><button class="close-btn" onclick="closeModal('leaveModal')">✕</button></div>
+    <div class="form-group"><label>Employee *</label><select id="leaveEmpSelect"></select></div>
+    <div class="form-group"><label>Leave Type *</label>
+      <select id="leaveType"><option>Casual Leave</option><option>Sick Leave</option><option>Earned Leave</option><option>Comp-Off</option><option>WFH</option></select>
+    </div>
+    <div class="grid-2" style="gap:12px">
+      <div class="form-group"><label>From Date *</label><input id="leaveFrom" type="date"/></div>
+      <div class="form-group"><label>To Date *</label><input id="leaveTo" type="date"/></div>
+    </div>
+    <div class="form-group"><label>Reason *</label><textarea id="leaveReason" placeholder="Reason for leave..."></textarea></div>
+    <div id="leaveConflictWarning" style="display:none;margin-bottom:12px"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="closeModal('leaveModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitLeave()">Submit Application</button>
+    </div>
+  </div>
+</div>
+
+<!-- Employee Detail Modal -->
+<div class="modal-overlay" id="empDetailModal">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-header"><span class="modal-title" id="empDetailName">Employee Details</span><button class="close-btn" onclick="closeModal('empDetailModal')">✕</button></div>
+    <div id="empDetailContent"></div>
+  </div>
+</div>
+
+<!-- Goal Modal -->
+<div class="modal-overlay" id="goalModal">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-header"><span class="modal-title">Add OKR Goal</span><button class="close-btn" onclick="closeModal('goalModal')">✕</button></div>
+    <div class="form-group"><label>Employee</label><select id="goalEmp"></select></div>
+    <div class="form-group"><label>Objective</label><input id="goalObj" placeholder="Increase system uptime to 99.9%"/></div>
+    <div class="form-group"><label>Key Result</label><input id="goalKR" placeholder="Reduce incidents by 50% in Q4"/></div>
+    <div class="grid-2" style="gap:12px">
+      <div class="form-group"><label>Progress (%)</label><input id="goalProgress" type="number" min="0" max="100" value="0"/></div>
+      <div class="form-group"><label>Due Date</label><input id="goalDue" type="date"/></div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="closeModal('goalModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveGoal()">Save Goal</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// =====================================================
+// DATA STORE
+// =====================================================
+const employees = [
+  {id:'EMP-001',first:'Admin',last:'User',email:'admin@company.com',phone:'+91 9876543210',dept:'HR',role:'HR Administrator',manager:'',joining:'2022-01-15',status:'Active',grade:'L4 Lead',location:'Gurugram HQ',notes:'System admin'},
+  {id:'EMP-002',first:'Arjun',last:'Kapoor',email:'arjun@company.com',phone:'+91 9812341234',dept:'Engineering',role:'Senior Engineer',manager:'EMP-006',joining:'2022-03-10',status:'Active',grade:'L3 Senior',location:'Gurugram HQ',notes:'Backend specialist'},
+  {id:'EMP-003',first:'Priya',last:'Sharma',email:'priya@company.com',phone:'+91 9823452345',dept:'Marketing',role:'Marketing Lead',manager:'EMP-001',joining:'2021-07-20',status:'Active',grade:'L3 Senior',location:'Gurugram HQ',notes:''},
+  {id:'EMP-004',first:'Rohan',last:'Mehta',email:'rohan@company.com',phone:'+91 9834563456',dept:'Engineering',role:'Junior Developer',manager:'EMP-002',joining:'2024-01-05',status:'Active',grade:'L1 Junior',location:'Gurugram HQ',notes:'Late arrival flag'},
+  {id:'EMP-005',first:'Sneha',last:'Iyer',email:'sneha@company.com',phone:'+91 9845674567',dept:'Finance',role:'Finance Analyst',manager:'EMP-001',joining:'2023-05-12',status:'Active',grade:'L2 Mid',location:'Gurugram HQ',notes:''},
+  {id:'EMP-006',first:'Vikram',last:'Singh',email:'vikram@company.com',phone:'+91 9856785678',dept:'Engineering',role:'Engineering Manager',manager:'EMP-001',joining:'2020-11-01',status:'Active',grade:'L4 Lead',location:'Gurugram HQ',notes:''},
+  {id:'EMP-007',first:'Kavya',last:'Reddy',email:'kavya@company.com',phone:'+91 9867896789',dept:'Engineering',role:'Frontend Engineer',manager:'EMP-006',joining:'2025-10-01',status:'Active',grade:'L2 Mid',location:'Gurugram HQ',notes:'Newly onboarded'},
+  {id:'EMP-008',first:'Rahul',last:'Gupta',email:'rahul@company.com',phone:'+91 9878907890',dept:'Sales',role:'Sales Executive',manager:'EMP-010',joining:'2023-02-14',status:'Active',grade:'L2 Mid',location:'Mumbai',notes:''},
+  {id:'EMP-009',first:'Anjali',last:'Nair',email:'anjali@company.com',phone:'+91 9889018901',dept:'Operations',role:'Operations Analyst',manager:'EMP-001',joining:'2022-08-30',status:'Active',grade:'L2 Mid',location:'Gurugram HQ',notes:''},
+  {id:'EMP-010',first:'Suresh',last:'Kumar',email:'suresh@company.com',phone:'+91 9890129012',dept:'Sales',role:'Sales Manager',manager:'EMP-001',joining:'2021-04-15',status:'Active',grade:'L3 Senior',location:'Mumbai',notes:''},
+  {id:'EMP-011',first:'Meera',last:'Patel',email:'meera@company.com',phone:'+91 9901230123',dept:'HR',role:'HR Executive',manager:'EMP-001',joining:'2023-09-01',status:'Active',grade:'L2 Mid',location:'Gurugram HQ',notes:''},
+  {id:'EMP-012',first:'Kiran',last:'Verma',email:'kiran@company.com',phone:'+91 9812340123',dept:'Finance',role:'Senior Accountant',manager:'EMP-005',joining:'2021-12-01',status:'Active',grade:'L3 Senior',location:'Gurugram HQ',notes:''},
+  {id:'EMP-013',first:'Deepak',last:'Rao',email:'deepak@company.com',phone:'+91 9823451234',dept:'Engineering',role:'DevOps Engineer',manager:'EMP-006',joining:'2022-06-15',status:'Active',grade:'L2 Mid',location:'Bangalore',notes:''},
+  {id:'EMP-014',first:'Pooja',last:'Menon',email:'pooja@company.com',phone:'+91 9834562345',dept:'Marketing',role:'Content Strategist',manager:'EMP-003',joining:'2023-11-10',status:'Active',grade:'L1 Junior',location:'Gurugram HQ',notes:''},
+  {id:'EMP-015',first:'Aditya',last:'Joshi',email:'aditya@company.com',phone:'+91 9845673456',dept:'Engineering',role:'QA Engineer',manager:'EMP-006',joining:'2023-03-20',status:'Active',grade:'L2 Mid',location:'Gurugram HQ',notes:''},
+  {id:'EMP-016',first:'Ritika',last:'Bose',email:'ritika@company.com',phone:'+91 9856784567',dept:'HR',role:'Talent Acquisition',manager:'EMP-001',joining:'2024-06-01',status:'Active',grade:'L1 Junior',location:'Gurugram HQ',notes:''},
+  {id:'EMP-017',first:'Manish',last:'Tiwari',email:'manish@company.com',phone:'+91 9867895678',dept:'Finance',role:'Tax Consultant',manager:'EMP-005',joining:'2022-09-12',status:'On Leave',grade:'L2 Mid',location:'Gurugram HQ',notes:'Medical leave'},
+  {id:'EMP-018',first:'Gayatri',last:'Pillai',email:'gayatri@company.com',phone:'+91 9878906789',dept:'Operations',role:'Supply Chain Analyst',manager:'EMP-009',joining:'2023-07-07',status:'Active',grade:'L2 Mid',location:'Gurugram HQ',notes:''},
+  {id:'EMP-019',first:'Sanjay',last:'Malhotra',email:'sanjay@company.com',phone:'+91 9889017890',dept:'Sales',role:'Business Dev Exec',manager:'EMP-010',joining:'2024-02-20',status:'Active',grade:'L1 Junior',location:'Mumbai',notes:''},
+  {id:'EMP-020',first:'Lakshmi',last:'Sundar',email:'lakshmi@company.com',phone:'+91 9890128901',dept:'Engineering',role:'Data Scientist',manager:'EMP-006',joining:'2023-08-14',status:'Active',grade:'L3 Senior',location:'Gurugram HQ',notes:'ML focus'},
+  {id:'EMP-021',first:'Vivek',last:'Nanda',email:'vivek@company.com',phone:'+91 9901239012',dept:'Marketing',role:'Growth Manager',manager:'EMP-003',joining:'2022-05-01',status:'Active',grade:'L3 Senior',location:'Gurugram HQ',notes:''},
+  {id:'EMP-022',first:'Nisha',last:'Aggarwal',email:'nisha@company.com',phone:'+91 9812349012',dept:'HR',role:'HR Business Partner',manager:'EMP-001',joining:'2021-10-11',status:'Active',grade:'L3 Senior',location:'Gurugram HQ',notes:''},
+  {id:'EMP-023',first:'Rajesh',last:'Khanna',email:'rajesh@company.com',phone:'+91 9823458901',dept:'Operations',role:'Logistics Manager',manager:'EMP-001',joining:'2020-06-20',status:'Active',grade:'L3 Senior',location:'Gurugram HQ',notes:''},
+  {id:'EMP-024',first:'Divya',last:'Mohan',email:'divya@company.com',phone:'+91 9834567890',dept:'Engineering',role:'Backend Developer',manager:'EMP-006',joining:'2024-09-01',status:'Active',grade:'L1 Junior',location:'Bangalore',notes:'Onboarding'}
+];
+
+const leaveData = [
+  {id:1,emp:'EMP-002',type:'Earned Leave',from:'2025-11-10',to:'2025-11-12',days:3,reason:'Family trip',status:'Pending'},
+  {id:2,emp:'EMP-004',type:'Sick Leave',from:'2025-10-22',to:'2025-10-22',days:1,reason:'Fever',status:'Approved'},
+  {id:3,emp:'EMP-017',type:'Sick Leave',from:'2025-10-15',to:'2025-10-25',days:10,reason:'Medical procedure',status:'Approved'},
+  {id:4,emp:'EMP-003',type:'Casual Leave',from:'2025-11-14',to:'2025-11-15',days:2,reason:'Personal work',status:'Pending'},
+  {id:5,emp:'EMP-008',type:'WFH',from:'2025-11-18',to:'2025-11-20',days:3,reason:'Project deliverables',status:'Approved'},
+  {id:6,emp:'EMP-005',type:'Comp-Off',from:'2025-11-01',to:'2025-11-01',days:1,reason:'Worked on Sunday',status:'Approved'},
+  {id:7,emp:'EMP-010',type:'Earned Leave',from:'2025-11-15',to:'2025-11-19',days:5,reason:'Vacation',status:'Pending'},
+  {id:8,emp:'EMP-012',type:'Casual Leave',from:'2025-11-21',to:'2025-11-21',days:1,reason:'Festival',status:'Pending'},
+];
+
+const attendanceData = employees.slice(0,20).map((e,i)=>{
+  const statuses=['Present','Present','Present','Present','WFH','Late','Present','Present','Present','Absent'];
+  const st=statuses[i%10];
+  const cin=st==='Absent'?'—':st==='Late'?`10:${30+i*3}`:`09:${i<5?'0'+i:i}`;
+  const cout=st==='Absent'?'—':'18:30';
+  const hrs=st==='Absent'?0:8.5-(st==='Late'?1.5:0);
+  return {emp:e.id,name:e.first+' '+e.last,dept:e.dept,checkin:cin,checkout:cout,hours:hrs,status:st,note:st==='Late'?'Traffic delay':''};
+});
+
+const goals=[
+  {emp:'EMP-002',obj:'Improve system performance',kr:'Reduce API response time by 40%',progress:65,due:'2025-12-31'},
+  {emp:'EMP-003',obj:'Increase brand awareness',kr:'Grow LinkedIn followers by 5K',progress:40,due:'2025-12-31'},
+  {emp:'EMP-006',obj:'Build high-performing team',kr:'Complete 4 sprint cycles on time',progress:75,due:'2025-12-31'},
+  {emp:'EMP-005',obj:'Automate financial reporting',kr:'Reduce report time from 3 days to 1',progress:30,due:'2025-12-31'},
+  {emp:'EMP-020',obj:'Launch recommendation engine',kr:'Achieve >85% prediction accuracy',progress:55,due:'2025-12-31'},
+];
+
+const checkinLog=[];
+let calMonth=9,calYear=2025;
+
+// =====================================================
+// NAVIGATION
+// =====================================================
+function navigate(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const pg=document.getElementById('page-'+page);
+  if(pg){pg.classList.add('active');pg.style.display='';}
+  if(page==='aiassistant'){pg.style.display='flex';}
+  event.currentTarget&&event.currentTarget.classList.add('active');
+  document.getElementById('pageTitle').textContent={
+    dashboard:'Dashboard',employees:'Employee Directory',orgchart:'Org Chart',
+    attendance:'Attendance & Time Tracking',facecheckin:'Face Check-In',
+    leave:'Leave Management',payroll:'Payroll',performance:'Performance Management',
+    aiassistant:'AI Assistant',analytics:'Reports & Analytics',
+    selfservice:'Self Service',onboarding:'Onboarding'
+  }[page]||page;
+  if(page==='orgchart')renderOrgChart();
+  if(page==='analytics')renderAnalytics();
+  if(page==='onboarding')renderOnboarding();
+  if(page==='leave'){renderCalendar();renderLeaveBalances();}
+}
+
+// =====================================================
+// EMPLOYEES
+// =====================================================
+let empFilter={search:'',dept:'',status:''};
+function renderEmployees(){
+  const filtered=employees.filter(e=>{
+    const q=empFilter.search.toLowerCase();
+    const matchQ=!q||(e.first+' '+e.last).toLowerCase().includes(q)||e.dept.toLowerCase().includes(q)||e.role.toLowerCase().includes(q);
+    const matchD=!empFilter.dept||e.dept===empFilter.dept;
+    const matchS=!empFilter.status||e.status===empFilter.status;
+    return matchQ&&matchD&&matchS;
+  });
+  document.getElementById('empTableBody').innerHTML=filtered.map(e=>`
+    <tr>
+      <td><div style="display:flex;align-items:center;gap:10px">
+        <div class="avatar" style="width:32px;height:32px;font-size:11px">${e.first[0]}${e.last[0]}</div>
+        <div><div style="font-weight:500">${e.first} ${e.last}</div><div style="font-size:12px;color:var(--text3)">${e.email}</div></div>
+      </div></td>
+      <td><span class="chip">${e.id}</span></td>
+      <td>${e.dept}</td>
+      <td>${e.role}</td>
+      <td>${e.manager?employees.find(x=>x.id===e.manager)?.first+' '+employees.find(x=>x.id===e.manager)?.last:'—'}</td>
+      <td>${formatDate(e.joining)}</td>
+      <td><span class="badge ${e.status==='Active'?'badge-green':e.status==='On Leave'?'badge-amber':'badge-gray'}">${e.status}</span></td>
+      <td><div style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" onclick="viewEmployee('${e.id}')">View</button>
+        <button class="btn btn-ghost btn-sm" onclick="editEmployee('${e.id}')">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deactivateEmployee('${e.id}')">Deactivate</button>
+      </div></td>
+    </tr>`).join('');
+  document.getElementById('totalEmpStat').textContent=employees.filter(e=>e.status!=='Inactive').length;
+}
+function filterEmployees(v){empFilter.search=v;renderEmployees();}
+function filterByDept(v){empFilter.dept=v;renderEmployees();}
+function filterByStatus(v){empFilter.status=v;renderEmployees();}
+function viewEmployee(id){
+  const e=employees.find(x=>x.id===id);
+  if(!e)return;
+  document.getElementById('empDetailName').textContent=`${e.first} ${e.last}`;
+  document.getElementById('empDetailContent').innerHTML=`
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+      <div class="avatar" style="width:64px;height:64px;font-size:22px">${e.first[0]}${e.last[0]}</div>
+      <div><div style="font-size:18px;font-weight:700;font-family:var(--font-head)">${e.first} ${e.last}</div>
+      <div style="color:var(--text2)">${e.role} • ${e.dept}</div>
+      <div style="margin-top:6px"><span class="badge ${e.status==='Active'?'badge-green':'badge-amber'}">${e.status}</span></div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:13px">
+      <div style="background:var(--surface2);padding:12px;border-radius:var(--radius)"><div style="color:var(--text3);margin-bottom:4px">Employee ID</div><div style="font-weight:500">${e.id}</div></div>
+      <div style="background:var(--surface2);padding:12px;border-radius:var(--radius)"><div style="color:var(--text3);margin-bottom:4px">Email</div><div style="font-weight:500">${e.email}</div></div>
+      <div style="background:var(--surface2);padding:12px;border-radius:var(--radius)"><div style="color:var(--text3);margin-bottom:4px">Phone</div><div style="font-weight:500">${e.phone}</div></div>
+      <div style="background:var(--surface2);padding:12px;border-radius:var(--radius)"><div style="color:var(--text3);margin-bottom:4px">Joining Date</div><div style="font-weight:500">${formatDate(e.joining)}</div></div>
+      <div style="background:var(--surface2);padding:12px;border-radius:var(--radius)"><div style="color:var(--text3);margin-bottom:4px">Grade</div><div style="font-weight:500">${e.grade}</div></div>
+      <div style="background:var(--surface2);padding:12px;border-radius:var(--radius)"><div style="color:var(--text3);margin-bottom:4px">Location</div><div style="font-weight:500">${e.location}</div></div>
+    </div>
+    ${e.notes?`<div style="margin-top:12px;background:var(--surface2);padding:12px;border-radius:var(--radius);font-size:13px;color:var(--text2)">${e.notes}</div>`:''}`;
+  openModal('empDetailModal');
+}
+function editEmployee(id){alert('Edit employee: '+id+' — full edit form would open here');}
+function deactivateEmployee(id){if(confirm('Deactivate this employee?')){const e=employees.find(x=>x.id===id);if(e){e.status='Inactive';renderEmployees();}}}
+
+function openAddEmployee(){
+  document.getElementById('empJoining').value=new Date().toISOString().split('T')[0];
+  const managerSel=document.getElementById('empManager');
+  managerSel.innerHTML='<option value="">None</option>'+employees.filter(e=>e.status==='Active').map(e=>`<option value="${e.id}">${e.first} ${e.last}</option>`).join('');
+  openModal('addEmpModal');
+}
+function saveEmployee(){
+  const first=document.getElementById('empFirstName').value.trim();
+  const last=document.getElementById('empLastName').value.trim();
+  if(!first||!last){alert('Name is required');return;}
+  const newEmp={
+    id:'EMP-'+(employees.length+1).toString().padStart(3,'0'),
+    first,last,
+    email:document.getElementById('empEmail').value,
+    phone:document.getElementById('empPhone').value,
+    dept:document.getElementById('empDept').value,
+    role:document.getElementById('empRole').value,
+    manager:document.getElementById('empManager').value,
+    joining:document.getElementById('empJoining').value,
+    status:'Active',
+    grade:document.getElementById('empGrade').value,
+    location:document.getElementById('empLocation').value,
+    notes:document.getElementById('empNotes').value
+  };
+  employees.push(newEmp);
+  renderEmployees();
+  closeModal('addEmpModal');
+  showToast(`${first} ${last} added successfully!`);
+}
+
+// =====================================================
+// ORG CHART
+// =====================================================
+function renderOrgChart(){
+  const container=document.getElementById('orgChartContainer');
+  const topLevel=employees.filter(e=>!e.manager&&e.status!=='Inactive');
+  const getReports=(id)=>employees.filter(e=>e.manager===id&&e.status!=='Inactive');
+  function renderNode(emp,depth=0){
+    const reports=getReports(emp.id);
+    return `<div style="display:flex;flex-direction:column;align-items:center">
+      <div class="org-node ${depth===0?'root':''}" onclick="viewEmployee('${emp.id}')" style="position:relative">
+        <div class="avatar" style="width:36px;height:36px;font-size:12px;margin:0 auto 6px">${emp.first[0]}${emp.last[0]}</div>
+        <div style="font-weight:600;font-size:12px">${emp.first} ${emp.last}</div>
+        <div style="font-size:11px;color:var(--text3)">${emp.role}</div>
+        ${reports.length?`<div style="position:absolute;bottom:-2px;right:6px;font-size:10px;color:var(--text3)">${reports.length} reports</div>`:''}
+      </div>
+      ${reports.length?`
+        <div class="org-line"></div>
+        <div style="display:flex;gap:12px;position:relative">
+          ${reports.length>1?`<div style="position:absolute;top:0;left:50px;right:50px;border-top:2px solid var(--border2)"></div>`:''}
+          ${reports.map(r=>`<div style="display:flex;flex-direction:column;align-items:center">${renderNode(r,depth+1)}</div>`).join('')}
+        </div>`:''}
+    </div>`;
+  }
+  container.innerHTML=`<div style="display:flex;gap:32px;justify-content:center;flex-wrap:wrap">${topLevel.map(e=>renderNode(e)).join('')}</div>`;
+}
+
+// =====================================================
+// ATTENDANCE
+// =====================================================
+function renderAttendanceDaily(){
+  document.getElementById('todayDate').textContent=new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('attendanceDailyBody').innerHTML=attendanceData.map(a=>`
+    <tr>
+      <td><div style="font-weight:500">${a.name}</div><div style="font-size:12px;color:var(--text3)">${a.dept}</div></td>
+      <td>${a.checkin}</td><td>${a.checkout}</td>
+      <td>${a.hours?a.hours.toFixed(1)+' hrs':'—'}</td>
+      <td><span class="badge ${a.status==='Present'?'badge-green':a.status==='Late'?'badge-amber':a.status==='WFH'?'badge-blue':'badge-red'}">${a.status}</span></td>
+      <td style="font-size:12px;color:var(--text3)">${a.note||'—'}</td>
+    </tr>`).join('');
+}
+function renderMonthlyAtt(){
+  document.getElementById('monthlyAttBody').innerHTML=employees.slice(0,15).map((e,i)=>{
+    const p=18+Math.floor(Math.random()*5);const a=3-Math.floor(Math.random()*2);const l=i%4===0?2:0;const w=i%3===0?3:0;
+    const pct=Math.round((p/(p+a))*100);
+    return `<tr><td><div style="font-weight:500">${e.first} ${e.last}</div></td><td style="color:var(--accent3)">${p}</td><td style="color:var(--danger)">${a}</td><td style="color:var(--accent4)">${l}</td><td style="color:var(--accent)">${w}</td><td>8.2 hrs</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="flex:1;height:6px"><div class="progress-bar" style="width:${pct}%"></div></div><span style="font-size:12px;white-space:nowrap">${pct}%</span></div></td></tr>`;
+  }).join('');
+}
+function renderAnomalies(){
+  const anomalies=[
+    {icon:'⏰',name:'Rohan Mehta',issue:'Late arrival 4 consecutive days',detail:'Average 35 min late. Possible commute issue or disengagement.',severity:'high'},
+    {icon:'📉',name:'Engineering Dept',issue:'Absence spike 60% above normal',detail:'7 absences this week vs 4 last month average.',severity:'high'},
+    {icon:'🔄',name:'Manish Tiwari',issue:'Irregular check-in/out pattern',detail:'3 days with no checkout recorded this month.',severity:'medium'},
+    {icon:'🏠',name:'Priya Sharma',issue:'Excessive WFH usage',detail:'14 WFH days this month vs policy max of 8.',severity:'medium'},
+  ];
+  document.getElementById('anomalyList').innerHTML=anomalies.map(a=>`
+    <div class="${a.severity==='high'?'anomaly-card':'attrition-card'}">
+      <span style="font-size:20px">${a.icon}</span>
+      <div><div style="font-weight:600;font-size:13px;margin-bottom:4px">${a.name} — ${a.issue}</div>
+      <div style="font-size:12px;color:var(--text2)">${a.detail}</div></div>
+      <button class="btn btn-ghost btn-sm" style="margin-left:auto;flex-shrink:0" onclick="askAI('Analyse attendance pattern for ${a.name}')">Ask AI</button>
+    </div>`).join('');
+}
+
+// =====================================================
+// FACE DETECTION
+// =====================================================
+let videoStream=null,faceDetectionInterval=null,modelsLoaded=false;
+async function loadFaceModels(){
+  try{
+    const MODEL_URL='https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights';
+    await Promise.all([
+      faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+      faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+    ]);
+    modelsLoaded=true;
+    document.getElementById('faceIndicator').innerHTML='<span class="badge badge-green">✓ Models Ready</span>';
+  }catch(e){
+    document.getElementById('faceIndicator').innerHTML='<span class="badge badge-amber">⚠ CDN models unavailable — using simulation</span>';
+    modelsLoaded=false;
+  }
+}
+async function startCamera(){
+  try{
+    videoStream=await navigator.mediaDevices.getUserMedia({video:{width:640,height:480}});
+    const video=document.getElementById('faceVideo');
+    video.srcObject=videoStream;
+    document.getElementById('startCamBtn').style.display='none';
+    document.getElementById('stopCamBtn').style.display='inline-flex';
+    if(modelsLoaded){startFaceDetection();}else{simulateFaceDetection();}
+  }catch(e){
+    setFaceStatus('error','Camera access denied. Please allow camera permission or use Manual Check-In.');
+  }
+}
+function stopCamera(){
+  if(videoStream){videoStream.getTracks().forEach(t=>t.stop());videoStream=null;}
+  if(faceDetectionInterval){clearInterval(faceDetectionInterval);faceDetectionInterval=null;}
+  const canvas=document.getElementById('faceCanvas');
+  canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);
+  document.getElementById('startCamBtn').style.display='inline-flex';
+  document.getElementById('stopCamBtn').style.display='none';
+  setFaceStatus('no-face','Camera stopped.');
+}
+async function startFaceDetection(){
+  const video=document.getElementById('faceVideo');
+  const canvas=document.getElementById('faceCanvas');
+  faceDetectionInterval=setInterval(async()=>{
+    if(!modelsLoaded||!videoStream)return;
+    canvas.width=video.videoWidth||640;canvas.height=video.videoHeight||480;
+    const detections=await faceapi.detectAllFaces(video,new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks();
+    const ctx=canvas.getContext('2d');
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    if(detections.length>0){
+      faceapi.draw.drawDetections(canvas,detections);
+      faceapi.draw.drawFaceLandmarks(canvas,detections);
+      setFaceStatus('detected',`✓ ${detections.length} face(s) detected. Select employee and click Check-In.`);
+      document.getElementById('faceIndicator').innerHTML='<span class="badge badge-green pulse">● Live</span>';
+    }else{
+      setFaceStatus('no-face','No face detected — please look at the camera');
+      document.getElementById('faceIndicator').innerHTML='<span class="badge badge-amber">Scanning...</span>';
+    }
+  },500);
+}
+function simulateFaceDetection(){
+  let detected=false;
+  faceDetectionInterval=setInterval(()=>{
+    detected=!detected;
+    const canvas=document.getElementById('faceCanvas');
+    const ctx=canvas.getContext('2d');
+    canvas.width=320;canvas.height=240;
+    ctx.clearRect(0,0,320,240);
+    if(detected){
+      ctx.strokeStyle='#4f8ef7';ctx.lineWidth=2;
+      ctx.strokeRect(100,60,120,120);
+      ctx.fillStyle='rgba(79,142,247,0.1)';ctx.fillRect(100,60,120,120);
+      ctx.fillStyle='#4f8ef7';ctx.font='11px DM Sans';ctx.fillText('Face Detected',105,55);
+      setFaceStatus('detected','✓ Face detected (simulated). Ready for check-in.');
+      document.getElementById('faceIndicator').innerHTML='<span class="badge badge-blue pulse">Simulated</span>';
+    }else{
+      setFaceStatus('no-face','Scanning for face...');
+    }
+  },1500);
+}
+function setFaceStatus(type,msg){
+  const el=document.getElementById('faceStatus');
+  el.className='face-status '+type;
+  el.textContent=msg;
+}
+function performCheckin(type){
+  const empId=document.getElementById('faceEmpSelect').value;
+  if(!empId){alert('Please select an employee first');return;}
+  const emp=employees.find(e=>e.id===empId);
+  if(!emp)return;
+  const now=new Date();
+  const time=now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  const entry={name:emp.first+' '+emp.last,type,time,face:!!videoStream};
+  checkinLog.unshift(entry);
+  renderCheckinLog();
+  showToast(`${emp.first} ${emp.last} ${type==='in'?'checked in':'checked out'} at ${time}${videoStream?' (face verified)':''}`);
+}
+function manualCheckin(){
+  const empId=document.getElementById('faceEmpSelect').value;
+  if(!empId){alert('Please select an employee first');return;}
+  performCheckin('in');
+}
+function renderCheckinLog(){
+  const log=document.getElementById('checkinLog');
+  const count=checkinLog.filter(e=>e.type==='in').length;
+  document.getElementById('todayCheckinCount').textContent=count+' checked in';
+  if(!checkinLog.length){log.innerHTML='<div style="text-align:center;color:var(--text3);padding:40px">No check-ins yet today</div>';return;}
+  log.innerHTML=checkinLog.map(e=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:10px;border-bottom:1px solid var(--border)">
+      <div class="avatar" style="width:32px;height:32px;font-size:11px">${e.name.split(' ').map(n=>n[0]).join('')}</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:500">${e.name}</div><div style="font-size:11px;color:var(--text3)">${e.time}</div></div>
+      <span class="badge ${e.type==='in'?'badge-green':'badge-blue'}">${e.type==='in'?'In':'Out'}</span>
+      ${e.face?'<span class="badge badge-purple" title="Face verified">📷</span>':''}
+    </div>`).join('');
+}
+function populateFaceEmpSelect(){
+  const sel=document.getElementById('faceEmpSelect');
+  sel.innerHTML='<option value="">— Select employee —</option>'+employees.filter(e=>e.status==='Active').map(e=>`<option value="${e.id}">${e.first} ${e.last}</option>`).join('');
+}
+
+// =====================================================
+// LEAVE
+// =====================================================
+let leaveFilter='all';
+function renderLeaves(){
+  const filtered=leaveFilter==='all'?leaveData:leaveData.filter(l=>l.status===leaveFilter);
+  document.getElementById('leaveTableBody').innerHTML=filtered.map(l=>{
+    const emp=employees.find(e=>e.id===l.emp);
+    return `<tr>
+      <td><div style="font-weight:500">${emp?emp.first+' '+emp.last:'Unknown'}</div><div style="font-size:12px;color:var(--text3)">${emp?.dept||''}</div></td>
+      <td><span class="badge badge-blue">${l.type}</span></td>
+      <td>${formatDate(l.from)}</td><td>${formatDate(l.to)}</td>
+      <td style="text-align:center">${l.days}</td>
+      <td style="font-size:12px;color:var(--text2)">${l.reason}</td>
+      <td><span class="badge ${l.status==='Approved'?'badge-green':l.status==='Pending'?'badge-amber':'badge-red'}">${l.status}</span></td>
+      <td><div style="display:flex;gap:6px">
+        ${l.status==='Pending'?`<button class="btn btn-ghost btn-sm" onclick="approveLeave(${l.id})">✓ Approve</button><button class="btn btn-danger btn-sm" onclick="rejectLeave(${l.id})">Reject</button>`:
+        `<button class="btn btn-ghost btn-sm" onclick="askAI('Summarise leave for ${emp?.first} ${emp?.last}')">AI Summary</button>`}
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+function filterLeave(f,btn){
+  leaveFilter=f;
+  document.querySelectorAll('#leave-applications .btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderLeaves();
+}
+function approveLeave(id){const l=leaveData.find(x=>x.id===id);if(l){l.status='Approved';renderLeaves();showToast('Leave approved!');}}
+function rejectLeave(id){const l=leaveData.find(x=>x.id===id);if(l){l.status='Rejected';renderLeaves();showToast('Leave rejected.');}}
+function openLeaveModal(){
+  const sel=document.getElementById('leaveEmpSelect');
+  sel.innerHTML=employees.filter(e=>e.status==='Active').map(e=>`<option value="${e.id}">${e.first} ${e.last}</option>`).join('');
+  document.getElementById('leaveFrom').value='';
+  document.getElementById('leaveTo').value='';
+  document.getElementById('leaveConflictWarning').style.display='none';
+  openModal('leaveModal');
+}
+function submitLeave(){
+  const empId=document.getElementById('leaveEmpSelect').value;
+  const type=document.getElementById('leaveType').value;
+  const from=document.getElementById('leaveFrom').value;
+  const to=document.getElementById('leaveTo').value;
+  const reason=document.getElementById('leaveReason').value;
+  if(!from||!to||!reason){alert('Please fill all required fields');return;}
+  // conflict detection
+  const conflicts=leaveData.filter(l=>l.emp===empId&&l.status!=='Rejected'&&!(to<l.from||from>l.to));
+  if(conflicts.length>0){
+    const warn=document.getElementById('leaveConflictWarning');
+    warn.style.display='block';
+    warn.innerHTML=`<div class="anomaly-card"><span>⚠️</span><div><strong>AI: Leave conflict detected</strong><br><span style="font-size:12px">This overlaps with an existing ${conflicts[0].type} (${formatDate(conflicts[0].from)} - ${formatDate(conflicts[0].to)})</span></div></div>`;
+    return;
+  }
+  const days=Math.round((new Date(to)-new Date(from))/(1000*60*60*24))+1;
+  leaveData.push({id:leaveData.length+1,emp:empId,type,from,to,days,reason,status:'Pending'});
+  renderLeaves();closeModal('leaveModal');
+  showToast('Leave application submitted!');
+}
+function renderCalendar(){
+  const first=new Date(calYear,calMonth,1);
+  const last=new Date(calYear,calMonth+1,0);
+  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('calMonthTitle').textContent=`${months[calMonth]} ${calYear}`;
+  const grid=document.getElementById('calGrid');
+  const today=new Date();
+  const leaveDays=new Set(leaveData.filter(l=>l.status!=='Rejected').flatMap(l=>{
+    const days=[];let d=new Date(l.from);const end=new Date(l.to);
+    while(d<=end){if(d.getMonth()===calMonth&&d.getFullYear()===calYear)days.push(d.getDate());d=new Date(d);d.setDate(d.getDate()+1);}
+    return days;
+  }));
+  let html='';
+  for(let i=0;i<first.getDay();i++)html+=`<div class="cal-day other-month"></div>`;
+  for(let d=1;d<=last.getDate();d++){
+    const isToday=d===today.getDate()&&calMonth===today.getMonth()&&calYear===today.getFullYear();
+    const hasl=leaveDays.has(d);
+    const isSat=new Date(calYear,calMonth,d).getDay()===6;
+    const isSun=new Date(calYear,calMonth,d).getDay()===0;
+    html+=`<div class="cal-day${isToday?' today':''}${hasl&&!isToday?' has-leave':''}${(isSat||isSun)&&!isToday?' holiday':''}" title="${hasl?'Leave day':''}">${d}</div>`;
+  }
+  grid.innerHTML=html;
+}
+function changeMonth(dir){calMonth+=dir;if(calMonth>11){calMonth=0;calYear++;}if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
+function renderLeaveBalances(){
+  document.getElementById('leaveBalanceBody').innerHTML=employees.slice(0,10).map((e,i)=>{
+    const c=Math.floor(Math.random()*8)+2;const s=Math.floor(Math.random()*6)+1;const el=Math.floor(Math.random()*10)+5;
+    const co=Math.floor(Math.random()*3);const wfh=Math.floor(Math.random()*8)+2;
+    return `<tr><td><div style="font-weight:500">${e.first} ${e.last}</div></td><td>${c}/12</td><td>${s}/10</td><td>${el}/21</td><td>${co}</td><td>${wfh}/10</td><td>${c+s+el}</td></tr>`;
+  }).join('');
+}
+
+// =====================================================
+// PAYROLL
+// =====================================================
+function renderPayroll(){
+  const grades={
+    'L1 Junior':{basic:25000,hra:10000,allow:8000},
+    'L2 Mid':{basic:45000,hra:18000,allow:15000},
+    'L3 Senior':{basic:75000,hra:30000,allow:25000},
+    'L4 Lead':{basic:120000,hra:48000,allow:40000}
+  };
+  document.getElementById('payrollBody').innerHTML=employees.slice(0,12).map(e=>{
+    const g=grades[e.grade]||grades['L2 Mid'];
+    const gross=g.basic+g.hra+g.allow;
+    const pf=Math.round(g.basic*0.12);
+    const tds=Math.round((gross-pf-50000)*0.1);
+    const net=gross-pf-Math.max(0,tds);
+    return `<tr>
+      <td><div style="font-weight:500">${e.first} ${e.last}</div></td>
+      <td><span class="badge badge-gray">${e.dept}</span></td>
+      <td>₹${g.basic.toLocaleString('en-IN')}</td>
+      <td>₹${g.hra.toLocaleString('en-IN')}</td>
+      <td>₹${g.allow.toLocaleString('en-IN')}</td>
+      <td style="font-weight:600;color:var(--accent3)">₹${gross.toLocaleString('en-IN')}</td>
+      <td>₹${pf.toLocaleString('en-IN')}</td>
+      <td>₹${Math.max(0,tds).toLocaleString('en-IN')}</td>
+      <td style="font-weight:700;color:var(--accent)">₹${net.toLocaleString('en-IN')}</td>
+    </tr>`;
+  }).join('');
+}
+function exportPayroll(){
+  const rows=[['Employee','Dept','Basic','HRA','Allowances','Gross','PF','TDS','Net Pay']];
+  alert('Payroll exported as CSV/Excel!');
+}
+function exportAttendance(){alert('Attendance exported as CSV!');}
+function exportEmployees(){alert('Employee data exported!');}
+
+// =====================================================
+// PERFORMANCE
+// =====================================================
+function renderGoals(){
+  document.getElementById('goalsGrid').innerHTML=goals.map(g=>{
+    const emp=employees.find(e=>e.id===g.emp);
+    return `<div class="card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <div class="avatar" style="width:32px;height:32px;font-size:11px">${emp?.first[0]}${emp?.last[0]}</div>
+        <div><div style="font-size:13px;font-weight:600">${emp?.first} ${emp?.last}</div><div style="font-size:12px;color:var(--text3)">${emp?.dept}</div></div>
+      </div>
+      <div style="font-weight:600;font-size:14px;margin-bottom:6px">${g.obj}</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:12px">${g.kr}</div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:12px;color:var(--text3)">Progress</span>
+        <span style="font-size:12px;font-weight:600">${g.progress}%</span>
+      </div>
+      <div class="progress"><div class="progress-bar" style="width:${g.progress}%;background:${g.progress>70?'var(--accent3)':g.progress>40?'var(--accent4)':'var(--danger)'}"></div></div>
+      <div style="font-size:11px;color:var(--text3);margin-top:8px">Due: ${formatDate(g.due)}</div>
+    </div>`;
+  }).join('');
+}
+function renderReviews(){
+  const ratings=[4.5,3.2,4.8,3.8,4.1];
+  document.getElementById('reviewBody').innerHTML=employees.slice(0,5).map((e,i)=>`
+    <tr>
+      <td><div style="font-weight:500">${e.first} ${e.last}</div></td>
+      <td>Q3 2025 (Jul–Sep)</td>
+      <td>${(ratings[i]-0.3).toFixed(1)}/5</td>
+      <td>${ratings[i]}/5</td>
+      <td><span class="badge ${ratings[i]>4?'badge-green':ratings[i]>3?'badge-blue':'badge-amber'}">${ratings[i]>4?'Exceeds':'Meets'} Expectations</span></td>
+      <td><button class="btn btn-ghost btn-sm" onclick="generateAIPerfSummary('${e.id}')">🤖 AI Summary</button></td>
+    </tr>`).join('');
+}
+function generateAIPerfSummary(id){
+  const emp=employees.find(e=>e.id===id);
+  askAIInternal(`Generate a performance review summary for ${emp?.first} ${emp?.last}, ${emp?.role} in ${emp?.dept}. Include strengths, growth areas, and recommendations.`);
+  navigate('aiassistant');
+}
+function renderPerfInsights(){
+  document.getElementById('perfInsightsList').innerHTML=`
+    <div style="background:var(--surface2);border-radius:var(--radius);padding:12px;border-left:3px solid var(--accent3)"><div style="font-size:13px;font-weight:600;margin-bottom:4px">Top Performer Cluster</div><div style="font-size:12px;color:var(--text2)">Engineering team shows 23% higher goal completion vs company average. Lakshmi Sundar and Vikram Singh are standouts.</div></div>
+    <div style="background:var(--surface2);border-radius:var(--radius);padding:12px;border-left:3px solid var(--danger)"><div style="font-size:13px;font-weight:600;margin-bottom:4px">Attrition risk correlation</div><div style="font-size:12px;color:var(--text2)">3 employees with rating below 3.5 also have 3+ leave applications this quarter — high flight risk profile.</div></div>
+    <div style="background:var(--surface2);border-radius:var(--radius);padding:12px;border-left:3px solid var(--accent4)"><div style="font-size:13px;font-weight:600;margin-bottom:4px">Review deadline approaching</div><div style="font-size:12px;color:var(--text2)">8 out of 24 employees haven't had their Q3 manager review submitted yet. Cycle closes in 5 days.</div></div>`;
+}
+function openGoalModal(){
+  document.getElementById('goalEmp').innerHTML=employees.filter(e=>e.status==='Active').map(e=>`<option value="${e.id}">${e.first} ${e.last}</option>`).join('');
+  document.getElementById('goalDue').value='2025-12-31';
+  openModal('goalModal');
+}
+function saveGoal(){
+  goals.push({emp:document.getElementById('goalEmp').value,obj:document.getElementById('goalObj').value,kr:document.getElementById('goalKR').value,progress:+document.getElementById('goalProgress').value,due:document.getElementById('goalDue').value});
+  renderGoals();closeModal('goalModal');showToast('Goal added!');
+}
+
+// =====================================================
+// AI ASSISTANT
+// =====================================================
+const HRMS_CONTEXT=()=>`You are Keka AI, an intelligent HRMS assistant. Here is the current HR data:
+
+EMPLOYEES (${employees.length} total): ${employees.map(e=>`${e.first} ${e.last} (${e.dept}, ${e.role}, Status: ${e.status}, Joined: ${e.joining})`).join('; ')}
+
+LEAVE APPLICATIONS: ${leaveData.map(l=>{const emp=employees.find(e=>e.id===l.emp);return `${emp?.first} ${emp?.last}: ${l.type} ${l.from} to ${l.to} (${l.status})`;}).join('; ')}
+
+DEPARTMENTS: Engineering(7), HR(5), Finance(3), Marketing(3), Sales(3), Operations(3)
+
+ATTENDANCE TODAY: 19 Present, 3 Late, 4 WFH, 2 Absent
+
+PERFORMANCE: Average rating 4.1/5. Top performers: Vikram Singh, Lakshmi Sundar. At-risk: Priya Sharma (low rating + high leaves).
+
+Answer the HR question concisely and helpfully. Use data above. Be specific with names and numbers.`;
+
+async function sendAIMessage(){
+  const input=document.getElementById('aiInput');
+  const q=input.value.trim();
+  if(!q)return;
+  input.value='';
+  askAI(q);
+}
+function askAI(q){addMsg('user',q);askAIInternal(q);}
+async function askAIInternal(q){
+  addMsg('ai','<span class="loading-dots"><span>●</span><span>●</span><span>●</span></span>',true);
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:600,
+        system:HRMS_CONTEXT(),
+        messages:[{role:'user',content:q}]
+      })
+    });
+    const data=await res.json();
+    const text=data.content?.[0]?.text||'Unable to get response.';
+    updateLastAIMsg(text);
+  }catch(e){updateLastAIMsg('I can answer HR questions using local data. '+getLocalAnswer(q));}
+}
+function getLocalAnswer(q){
+  const ql=q.toLowerCase();
+  if(ql.includes('leave next week')){
+    const nw=leaveData.filter(l=>l.status!=='Rejected'&&new Date(l.from)>=new Date());
+    return `${nw.length} employees have upcoming leave: ${nw.map(l=>{const e=employees.find(x=>x.id===l.emp);return e?.first+' '+e?.last;}).join(', ')}.`;
+  }
+  if(ql.includes('attrition')||ql.includes('risk')){return 'High attrition risk: Priya Sharma (low performance + 3 leaves this quarter). Medium risk: Manish Tiwari (extended sick leave).';}
+  if(ql.includes('engineering')){return `Engineering has ${employees.filter(e=>e.dept==='Engineering').length} employees. Manager: Vikram Singh.`;}
+  if(ql.includes('payroll')||ql.includes('salary')){return 'October gross payroll: ₹42.3L. Net payable: ₹36.8L after PF and TDS deductions.';}
+  if(ql.includes('top performer')){return 'Top performers this quarter: Vikram Singh (4.8/5) and Lakshmi Sundar (4.6/5) in Engineering.';}
+  return `Based on current data: ${employees.length} active employees across 6 departments. 87% average attendance this month.`;
+}
+function addMsg(role,content,isLoading=false){
+  const msgs=document.getElementById('aiMessages');
+  const div=document.createElement('div');
+  div.className=`msg msg-${role}`;
+  div.id=isLoading?'loadingMsg':'';
+  div.innerHTML=`${role==='ai'?'<div class="msg-avatar">🤖</div>':''}<div class="msg-bubble">${content}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+function updateLastAIMsg(text){
+  const el=document.getElementById('loadingMsg');
+  if(el){el.querySelector('.msg-bubble').textContent=text;el.removeAttribute('id');}
+  else addMsg('ai',text);
+}
+
+// =====================================================
+// ANALYTICS
+// =====================================================
+function renderAnalytics(){
+  renderAttritionList();
+  setTimeout(()=>{
+    renderChart('headcountChart','line',['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct'],[18,19,20,19,21,21,22,23,23,24],{label:'Headcount',color:'#4f8ef7'});
+    renderChart('leaveTypeChart','doughnut',['Casual','Sick','Earned','Comp-Off','WFH'],[15,8,22,5,12],{colors:['#4f8ef7','#ef4444','#10b981','#7c3aed','#f59e0b']});
+    renderChart('deptAttChart','bar',['Eng','HR','Finance','Mktg','Sales','Ops'],[91,88,85,82,79,87],{label:'Attendance %',color:'#10b981'});
+  },100);
+}
+function renderAttritionList(){
+  const risks=[
+    {name:'Priya Sharma',dept:'Marketing',risk:82,reasons:'Low perf rating, high leave usage, no recent goals set'},
+    {name:'Manish Tiwari',dept:'Finance',risk:68,reasons:'Extended sick leave, performance declined'},
+    {name:'Rohan Mehta',dept:'Engineering',risk:45,reasons:'Repeated late arrivals, missed 2 deadlines'},
+  ];
+  document.getElementById('attritionList').innerHTML=risks.map(r=>`
+    <div class="attrition-card">
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <span style="font-weight:600;font-size:13px">${r.name} <span style="font-weight:400;color:var(--text3)">• ${r.dept}</span></span>
+          <span style="font-weight:700;color:var(--accent4)">${r.risk}% risk</span>
+        </div>
+        <div class="progress" style="margin-bottom:6px"><div class="progress-bar" style="width:${r.risk}%;background:var(--accent4)"></div></div>
+        <div style="font-size:11px;color:var(--text2)">${r.reasons}</div>
+      </div>
+    </div>`).join('');
+}
+
+// =====================================================
+// ONBOARDING
+// =====================================================
+function renderOnboarding(){
+  const newEmps=employees.filter(e=>e.notes&&(e.notes.includes('onboard')||e.notes.includes('Newly')||e.joining>='2025-09-01'));
+  document.getElementById('onboardingCards').innerHTML=newEmps.slice(0,3).map((e,i)=>{
+    const tasks=['Profile setup','Document upload','IT equipment setup','System access','Team intro meeting','Policy review','Buddy assigned','First project briefing'];
+    const done=Math.floor(Math.random()*5)+2;
+    return `<div class="card">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        <div class="avatar" style="width:44px;height:44px;font-size:14px">${e.first[0]}${e.last[0]}</div>
+        <div><div style="font-weight:700;font-family:var(--font-head)">${e.first} ${e.last}</div>
+        <div style="font-size:13px;color:var(--text2)">${e.role} • ${e.dept}</div>
+        <div style="font-size:12px;color:var(--text3)">Joined ${formatDate(e.joining)}</div></div>
+      </div>
+      <div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:12px">Onboarding Progress</span><span style="font-size:12px;font-weight:600">${done}/${tasks.length} tasks</span></div>
+      <div class="progress"><div class="progress-bar" style="width:${Math.round(done/tasks.length*100)}%"></div></div></div>
+      ${tasks.map((t,ti)=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">
+        <span style="color:${ti<done?'var(--accent3)':'var(--text3)'}">${ti<done?'✓':'○'}</span>
+        <span style="${ti<done?'':'color:var(--text3)'}">${t}</span>
+      </div>`).join('')}
+      <button class="btn btn-ghost btn-sm" style="margin-top:12px;width:100%" onclick="alert('Sending welcome email to ${e.email}!')">📧 Send Welcome Email</button>
+    </div>`;
+  }).join('');
+}
+
+// =====================================================
+// CHARTS
+// =====================================================
+const chartInstances={};
+function renderChart(id,type,labels,data,opts={}){
+  const ctx=document.getElementById(id);
+  if(!ctx)return;
+  if(chartInstances[id]){chartInstances[id].destroy();}
+  chartInstances[id]=new Chart(ctx,{
+    type,
+    data:{
+      labels,
+      datasets:[{
+        label:opts.label||'',
+        data,
+        backgroundColor:type==='doughnut'?(opts.colors||['#4f8ef7']):opts.color+'33',
+        borderColor:type==='doughnut'?(opts.colors||['#4f8ef7']):opts.color||'#4f8ef7',
+        borderWidth:2,
+        fill:type!=='doughnut',
+        tension:.4,
+        borderRadius:type==='bar'?6:0,
+        pointBackgroundColor:opts.color||'#4f8ef7',
+        pointRadius:4,
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:true,
+      plugins:{legend:{display:type==='doughnut',labels:{color:'#8899bb',font:{family:'DM Sans'}}},tooltip:{backgroundColor:'#111827',titleColor:'#f0f4ff',bodyColor:'#8899bb',borderColor:'#2a3550',borderWidth:1}},
+      scales:type==='doughnut'?{}:{
+        x:{grid:{color:'#2a3550'},ticks:{color:'#8899bb'}},
+        y:{grid:{color:'#2a3550'},ticks:{color:'#8899bb'}}
+      }
+    }
+  });
+}
+
+// =====================================================
+// TABS
+// =====================================================
+function switchTab(section,tab){
+  const tabs=document.querySelectorAll(`#${section}-${tab}`)??[];
+  document.querySelectorAll(`[id^="${section}-"]`).forEach(t=>{t.classList.remove('active');});
+  document.getElementById(`${section}-${tab}`)?.classList.add('active');
+  event.currentTarget.closest('.tabs')?.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+}
+
+// =====================================================
+// MODALS
+// =====================================================
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});});
+
+// =====================================================
+// GLOBAL SEARCH
+// =====================================================
+function globalSearchFn(q){
+  if(q.length>1){
+    empFilter.search=q;
+    renderEmployees();
+    navigate('employees');
+  }
+}
+
+// =====================================================
+// NOTIFICATIONS
+// =====================================================
+function showNotifications(){
+  showToast('📢 3 leave approvals pending | ⚠ 2 attendance anomalies | 🎂 1 birthday this week');
+}
+
+// =====================================================
+// UTILS
+// =====================================================
+function formatDate(d){
+  if(!d)return '—';
+  try{return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});}catch{return d;}
+}
+function showToast(msg){
+  const t=document.createElement('div');
+  t.style.cssText='position:fixed;bottom:24px;right:24px;background:#1a2235;border:1px solid #3a4a6a;color:#f0f4ff;padding:12px 20px;border-radius:12px;font-size:13px;z-index:9999;animation:slideUp .3s ease;max-width:380px;box-shadow:0 8px 24px rgba(0,0,0,.4)';
+  t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),3500);
+}
+
+// =====================================================
+// POPULATE SELECTS
+// =====================================================
+function populateSelects(){
+  ['leaveEmpSelect','goalEmp','balanceEmpSelect'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.innerHTML=(id==='balanceEmpSelect'?'<option value="">All Employees</option>':'')+employees.filter(e=>e.status==='Active').map(e=>`<option value="${e.id}">${e.first} ${e.last}</option>`).join('');
+  });
+  populateFaceEmpSelect();
+}
+
+// =====================================================
+// CHARTS INIT
+// =====================================================
+function initDashboardCharts(){
+  setTimeout(()=>{
+    renderChart('attendanceChart','bar',['Mon','Tue','Wed','Thu','Fri','Sat'],[21,19,22,20,18,14],{label:'Present',color:'#4f8ef7'});
+    const depts=['Eng','HR','Finance','Mktg','Sales','Ops'],counts=[7,5,3,3,3,3];
+    if(document.getElementById('deptChart')){
+      if(chartInstances['deptChart'])chartInstances['deptChart'].destroy();
+      chartInstances['deptChart']=new Chart(document.getElementById('deptChart'),{type:'doughnut',data:{labels:depts,datasets:[{data:counts,backgroundColor:['#4f8ef7','#7c3aed','#10b981','#f59e0b','#ef4444','#06b6d4'],borderWidth:0}]},options:{responsive:true,plugins:{legend:{position:'right',labels:{color:'#8899bb',font:{family:'DM Sans'},padding:8}}}}});
+    }
+    if(document.getElementById('monthlyAttChart')){
+      renderChart('monthlyAttChart','line',Array.from({length:22},(_,i)=>`Oct ${i+1}`),[95,92,88,91,85,0,0,94,90,87,89,92,88,91,0,0,85,88,90,92,87,89],{label:'Attendance %',color:'#10b981'});
+    }
+    if(document.getElementById('ratingChart')){
+      renderChart('ratingChart','bar',['1-2','2-3','3-4','4-4.5','4.5-5'],[1,2,8,9,4],{label:'Employees',color:'#7c3aed'});
+    }
+  },200);
+}
+
+// =====================================================
+// BOOT
+// =====================================================
+window.addEventListener('DOMContentLoaded',()=>{
+  renderEmployees();
+  renderAttendanceDaily();
+  renderMonthlyAtt();
+  renderAnomalies();
+  renderLeaves();
+  renderCalendar();
+  renderPayroll();
+  renderGoals();
+  renderReviews();
+  renderPerfInsights();
+  populateSelects();
+  initDashboardCharts();
+  loadFaceModels();
+  document.getElementById('todayDate').textContent=new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('onLeaveStat').textContent=leaveData.filter(l=>l.status==='Approved'&&new Date(l.from)<=new Date()&&new Date(l.to)>=new Date()).length;
+});
+</script>
+</body>
+</html>
